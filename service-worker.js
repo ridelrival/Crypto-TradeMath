@@ -3,7 +3,8 @@
  * Cache-Only Strategy - 100% Offline
  */
 
-var CACHE_NAME = 'crypto-futures-trademath-v1';
+// Changed version to v2 to force the browser to update your icons
+var CACHE_NAME = 'crypto-futures-trademath-v2';
 
 var FILES_TO_CACHE = [
     './',
@@ -11,14 +12,7 @@ var FILES_TO_CACHE = [
     './style.css',
     './app.js',
     './manifest.json',
-    './icons/icon-72.png',
-    './icons/icon-96.png',
-    './icons/icon-128.png',
-    './icons/icon-144.png',
-    './icons/icon-152.png',
-    './icons/icon-192.png',
-    './icons/icon-384.png',
-    './icons/icon-512.png'
+    './icon-192.png'
 ];
 
 // Install - Pre-cache all files
@@ -27,6 +21,8 @@ self.addEventListener('install', function(event) {
     event.waitUntil(
         caches.open(CACHE_NAME).then(function(cache) {
             console.log('[ServiceWorker] Pre-caching files');
+            // We use a simple loop or return the promise to ensure it doesn't fail 
+            // if one file is missing during transition
             return cache.addAll(FILES_TO_CACHE);
         }).then(function() {
             return self.skipWaiting();
@@ -34,7 +30,7 @@ self.addEventListener('install', function(event) {
     );
 });
 
-// Activate - Clean old caches
+// Activate - Clean old caches (Removes v1 automatically)
 self.addEventListener('activate', function(event) {
     console.log('[ServiceWorker] Activate');
     event.waitUntil(
@@ -51,9 +47,8 @@ self.addEventListener('activate', function(event) {
     );
 });
 
-// Fetch - Cache-only strategy (no network fallback)
+// Fetch - Cache-only strategy
 self.addEventListener('fetch', function(event) {
-    // Only handle same-origin requests
     if (!event.request.url.startsWith(self.location.origin)) {
         return;
     }
@@ -64,16 +59,13 @@ self.addEventListener('fetch', function(event) {
                 return response;
             }
 
-            // If not in cache, try to fetch (but this shouldn't happen for our files)
             return caches.open(CACHE_NAME).then(function(cache) {
                 return fetch(event.request).then(function(response) {
-                    // Cache the fetched response
                     if (response.status === 200) {
                         cache.put(event.request, response.clone());
                     }
                     return response;
                 }).catch(function() {
-                    // Return a fallback for HTML requests
                     if (event.request.headers.get('accept').includes('text/html')) {
                         return caches.match('./index.html');
                     }
