@@ -9,13 +9,13 @@
     "theme_color": "#0F1117",
     "icons": [
         {
-            "src": "NAMA_FILE_ANDA.png",
+            "src": "icon-192.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "any"
         },
         {
-            "src": "NAMA_FILE_ANDA.png",
+            "src": "icon-192.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "any"
